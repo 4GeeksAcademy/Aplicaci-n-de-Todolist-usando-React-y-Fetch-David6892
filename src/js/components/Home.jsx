@@ -9,7 +9,7 @@ export default function Home() {
   const [todos, setTodos] = useState([]);
   const [task, setTask] = useState("");
 
-  // GET tareas
+  
   const getTodos = async () => {
     try {
       const response = await fetch(API_URL);
@@ -26,12 +26,12 @@ export default function Home() {
     }
   };
 
-  // Cargar al iniciar
+  
   useEffect(() => {
     getTodos();
   }, []);
 
-  // AGREGAR tarea
+  
   const addTask = async (e) => {
     if (e.key !== "Enter" || task.trim() === "") return;
 
@@ -54,7 +54,7 @@ export default function Home() {
     }
   };
 
-  // ELIMINAR tarea
+  
   const deleteTask = async (id) => {
     try {
       await fetch(`${TODOS_URL}/${id}`, {
@@ -67,7 +67,7 @@ export default function Home() {
     }
   };
 
-  // LIMPIAR TODO
+  
   const clearAllTasks = async () => {
     try {
       await Promise.all(
