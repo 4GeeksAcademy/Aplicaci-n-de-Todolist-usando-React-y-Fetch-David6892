@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const USERNAME = "David_G";
+  const USERNAME = "David6892";
+
   const API_URL = `https://playground.4geeks.com/todo/users/${USERNAME}`;
+  const TODOS_URL = `https://playground.4geeks.com/todo/todos`;
 
   const [todos, setTodos] = useState([]);
   const [task, setTask] = useState("");
 
-  // Obtener tareas del servidor
+  // GET tareas
   const getTodos = async () => {
     try {
       const response = await fetch(API_URL);
 
       if (!response.ok) {
-        throw new Error("Error al obtener las tareas");
+        setTodos([]);
+        return;
       }
 
       const data = await response.json();
@@ -23,36 +26,17 @@ export default function Home() {
     }
   };
 
-  // Crear usuario si no existe
-  const createUser = async () => {
-    try {
-      await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Cargar tareas al iniciar
+  // Cargar al iniciar
   useEffect(() => {
-    const initialize = async () => {
-      await createUser();
-      await getTodos();
-    };
-
-    initialize();
+    getTodos();
   }, []);
 
-  // Agregar tarea
+  // AGREGAR tarea
   const addTask = async (e) => {
     if (e.key !== "Enter" || task.trim() === "") return;
 
     try {
-      const response = await fetch(`${API_URL}/todos`, {
+      await fetch(`${TODOS_URL}/${USERNAME}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,10 +47,6 @@ export default function Home() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Error al agregar la tarea");
-      }
-
       setTask("");
       await getTodos();
     } catch (error) {
@@ -74,16 +54,12 @@ export default function Home() {
     }
   };
 
-  // Eliminar una tarea
+  // ELIMINAR tarea
   const deleteTask = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/todos/${id}`, {
+      await fetch(`${TODOS_URL}/${id}`, {
         method: "DELETE",
       });
-
-      if (!response.ok) {
-        throw new Error("Error al eliminar la tarea");
-      }
 
       await getTodos();
     } catch (error) {
@@ -91,12 +67,12 @@ export default function Home() {
     }
   };
 
-  // Eliminar todas las tareas
+  // LIMPIAR TODO
   const clearAllTasks = async () => {
     try {
       await Promise.all(
         todos.map((todo) =>
-          fetch(`${API_URL}/todos/${todo.id}`, {
+          fetch(`${TODOS_URL}/${todo.id}`, {
             method: "DELETE",
           })
         )
@@ -131,13 +107,7 @@ export default function Home() {
         }}
       />
 
-      <ul
-        style={{
-          listStyle: "none",
-          padding: 0,
-          marginTop: "20px",
-        }}
-      >
+      <ul style={{ listStyle: "none", padding: 0, marginTop: "20px" }}>
         {todos.map((todo) => (
           <li
             key={todo.id}
@@ -156,8 +126,8 @@ export default function Home() {
                 background: "red",
                 color: "white",
                 border: "none",
-                cursor: "pointer",
                 padding: "5px 10px",
+                cursor: "pointer",
               }}
             >
               X
@@ -168,7 +138,6 @@ export default function Home() {
 
       <p>
         {todos.length} tarea{todos.length !== 1 ? "s" : ""} pendiente
-        {todos.length !== 1 ? "s" : ""}
       </p>
 
       <button
